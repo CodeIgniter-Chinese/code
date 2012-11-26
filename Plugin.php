@@ -1,5 +1,4 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
 /**
 *插件类
 *仿照wordpress，给CI的代码加入可以扩展的功能
@@ -7,17 +6,33 @@
 */	
 class CI_Plugin {
 	
+	/*
+	* 储存动作的数组
+	*/
 	public $actions;
+
+	/*
+	*储存过滤器的数组
+	*/
 	public $filters; 
 	
+	/*
+	*插件目录
+	*/
 	private $plugin_dir;
 	
+	/**
+	*初始化目录，调用初始化函数
+	*/
 	public   function __construct() {
 		$this->actions = $this->filters = array();
 		$this->plugin_dir = APPPATH . 'plugins/';
 		$this->init();
 	}
 	
+	/*
+	*初始化插件，主要完成插件回调的注册
+	*/
 	public function init(){
 		
 		$dir_handle = opendir($this->plugin_dir);
@@ -41,6 +56,9 @@ class CI_Plugin {
 		closedir($dir_handle);
 	}
 	
+	/**
+	*执行一个动作
+	*/
 	public function do_action() {
 		
 		$args = func_get_args();
@@ -55,13 +73,19 @@ class CI_Plugin {
 		
 	}
 	
+	/**
+	* 给一个动作加入一个回调
+	*/
 	public function add_action($action,$callable) {
 		$this->actions[$action][] = $callable;
 	}
 	
+	/**
+	* 删除一个回调
+	*/
 	public function remove_action($action,$callable) {
 		
-		t_makeit_array($this->actions[$action]);
+		$this->t_makeit_array($this->actions[$action]);
 		$actions = $this->actions[$action];
 		
 		foreach ($actions as $k=>$v) {
@@ -73,13 +97,19 @@ class CI_Plugin {
 		$this->actions[$action] = $actions;
 	}
 	
+	/**
+	*添加一个过滤
+	*/
 	public function add_filter($filter,$callable) {
 		$this->filters[$filter][] = $callable;
 	}
 	
+	/**
+	* 删除一个过滤回调
+	*/
 	public function remove_filter($filter,$callable) {
-		t_makeit_array($this->filters[$action]);
-		$filters = $this->filters[$action];
+		$this->t_makeit_array($this->filters[$filter]);
+		$filters = $this->filters[$filter];
 		
 		foreach ($filters as $k=>$v) {
 			if($v == $callable) {
@@ -90,6 +120,9 @@ class CI_Plugin {
 		$this->actions[$filter] = $filters;
 	}
 	
+	/**
+	*应用一个过滤
+	*/
 	public function apply_filter() {
 		$args = func_get_args();
 		$filter = array_shift($args);
@@ -105,6 +138,13 @@ class CI_Plugin {
 		} else {
 			return array_shift($args);
 		}
+	}
+	
+	/**
+	* 确保传递的是一个数组
+	*/
+	public function t_makeit_array(&$obj){
+		return is_array($obj) ? $obj : array();
 	}
 	
 }
